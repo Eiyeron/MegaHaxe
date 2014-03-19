@@ -29,4 +29,10 @@ class Bullet extends FlxSprite
 		}
 	}
 	
+	public function deviate():Void {
+		this.solid = false;
+		this.velocity.x = VELOCITY*Math.sin(22.5);
+		this.velocity.y = VELOCITY*Math.cos(22.5);
+	}
+	
 }

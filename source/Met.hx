@@ -14,33 +14,36 @@ import openfl.Assets;
 class Met extends FlxSprite
 {
 	public static inline var BULLET_LOOP:Float = 5;
-	public static inline var HIDING_TIME:Float = 2;
 	
 	private var currentState:PlayState;
-		
-	private var hidingRequired:Bool;
+
 	private var isHidden:Bool;
+	private var isFiring:Bool;
+
+	/**
+
+	private var hidingRequired:Bool;
 	private var willFire:Bool;
 	private var isInvicible:Bool;
-	
+	**/
 	public function new(x:Float, y:Float) 
 	{
 		super(x, y);
-		
-		hidingRequired = false;
+		health = 10;
+		immovable = true;
 		isHidden = true;
-		willFire = false;
-		
+		isFiring = false;
+
 		currentState = cast(FlxG.state, PlayState);
 		loadGraphic(Assets.getBitmapData("images/met.png"), true, true, 18, 19);
 		animation.add("hide", [0], 5, false);
-		animation.add("show", [2], 1, false);
+		animation.add("show", [2], 60, false);
 		animation.add("walk", [2, 3], 5, true);
 		animation.play("hide");
+
+		this.height = 11;
+		this.offset.y = 8;
 		
-		FlxG.watch.add(this, "hidingRequired", "hidingRequired");
-		FlxG.watch.add(this, "isHidden", "isHidden");
-		FlxG.watch.add(this, "willFire", "willFire");
 	}
 	
 	public override function update():Void {
@@ -49,35 +52,51 @@ class Met extends FlxSprite
 		else
 			this.facing = FlxObject.RIGHT;
 		
-		if (FlxMath.distanceBetween(this, currentState.player) < 50) {
-			hide(null);
-		}
-		else if (FlxMath.distanceBetween(this, currentState.player) < 120) {
-			if ((isHidden || hidingRequired) && !willFire) {
-				willFire = true;
-				FlxTimer.start(BULLET_LOOP, fire, 1);
-			}
-		}
-		else {
-			if (hidingRequired && !willFire) {
-				FlxTimer.start(HIDING_TIME, hide, 1);
-				hidingRequired = false;
-			}
-		}
-	}
-	
-	public function hide(timer:FlxTimer):Void {
-			animation.play("hide");
-			hidingRequired = false;
+		var distance:Float = FlxMath.distanceBetween(this, currentState.player);
+
+		if(distance <= 50) {
+			// We need to hide
 			isHidden = true;
+			animation.play("hide");
+		} else if(distance <= 200){
+			isHidden = false;
+			if (!isFiring) {
+				FlxTimer.start(1, fire, 0);
+				isFiring = true;
+			}
+		} else {
+			isHidden = true;
+			animation.play("hide");			
+		}
+
+		if (isHidden && height == 19) {
+			height = 11;
+			offset.y = 8;
+			y += 8;
+		} else if(height == 1){
+			this.height = 19;
+			this.offset.y = 0;
+			y -= 8;
+		}
 	}
 	
+	public function hit(me:Met, bullet:Bullet) {
+		if (isHidden)
+			bullet.deviate();
+		else {
+			hurt(3);
+			bullet.destroy();
+		}
+	}
+
 	public function fire(timer:FlxTimer):Void {
-			animation.play("show");
-			currentState.addEnnemyBullet(new Bullet(x, y + 5, facing == FlxObject.LEFT));
-			isHidden = false;
-			willFire = false;
-			hidingRequired = true;
+		if (FlxMath.distanceBetween(this, currentState.player) > 200 || FlxMath.distanceBetween(this, currentState.player) < 50) {			
+			timer.abort();
+			isFiring = false;
+			return;
+		}
+		animation.play("show");
+		currentState.addEnnemyBullet(new Bullet(x, y, facing == FlxObject.LEFT));
 	}
 	
 }

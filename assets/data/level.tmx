@@ -108,6 +108,6 @@
 </data>
  </layer>
  <objectgroup name="ennemies" width="60" height="40">
-  <object name="Met001" type="Met" x="480" y="464" width="16" height="16"/>
+  <object name="Met001" type="Met" x="480" y="469" width="16" height="9"/>
  </objectgroup>
 </map>

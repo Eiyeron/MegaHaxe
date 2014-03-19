@@ -26,6 +26,7 @@ class PlayState extends FlxState
 	private var bar:FlxBar;
 	public var map:FlxTilemap;
 	
+	private var ennemies:FlxGroup;
 	private var ennemyBullets:FlxGroup;
 	private var playerBullets:FlxGroup;
 	
@@ -41,6 +42,7 @@ class PlayState extends FlxState
 		player = new Megaman();		
 		this.add(player);
 		
+		add(ennemies);
 		ennemyBullets = new FlxGroup();
 		add(ennemyBullets);
 		playerBullets = new FlxGroup();
@@ -60,6 +62,13 @@ class PlayState extends FlxState
 	public function addEnnemyBullet(bullet:Bullet):Void {
 		ennemyBullets.add(bullet);
 	}
+	public function addPlayerBullet(bullet:Bullet):Void {
+		playerBullets.add(bullet);
+	}
+	
+	public function setEnnemies(group:FlxGroup) {
+		this.ennemies = group;
+	}
 	
 	/**
 	 * Function that is called when this state is destroyed - you might want to 
@@ -78,6 +87,12 @@ class PlayState extends FlxState
 	{
 		super.update();
 		FlxG.overlap(player, ennemyBullets, player.hit);
+		FlxG.overlap(ennemies, playerBullets, collide);
+		FlxG.collide(player, ennemies, player.hit);
 		FlxG.collide(player, map);
 	}	
+	
+	public function collide(target:Met, bullet:Bullet) {
+		target.hit(target, bullet);
+	}
 }

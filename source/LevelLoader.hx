@@ -50,7 +50,7 @@ class LevelLoader
 					entities.add(new Met(i.x, i.y));
 			}
 		}
-		state.add(entities);
+		state.setEnnemies(entities);
 		
 		}
 	

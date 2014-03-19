@@ -52,6 +52,7 @@ class Megaman extends FlxSprite {
 		super(0, 100);
 
 		//this.forceComplexRender = true;
+		immovable = false;
 		
 		this.velocity.y = -JUMP_SPEED;
 		this.acceleration.y = JUMP_GRAVITY_SPEED;
@@ -127,9 +128,9 @@ class Megaman extends FlxSprite {
 				var yOffset:Int = jumping ? 2 : 9;
 				
 				if(facing == FlxObject.LEFT)
-					FlxG.state.add(new Bullet(x - 15, y + yOffset, true));
+					cast(FlxG.state, PlayState).addPlayerBullet(new Bullet(x - 15, y + yOffset, true));
 				else
-					FlxG.state.add(new Bullet(x + width + 8, y + yOffset, false));
+					cast(FlxG.state, PlayState).addPlayerBullet(new Bullet(x + width + 8, y + yOffset, false));
 				firing = true;
 				firingTime = 0;
 			} else if (firing) {
@@ -199,12 +200,19 @@ class Megaman extends FlxSprite {
 		}
 	}
 	
-	public function hit(me:Megaman, bullet:Bullet):Void {
+	public function hitByBullet(me:Megaman, bullet:Bullet):Void {
 		if (!hurtInvicibility) {
 			push(bullet.x < x ? FlxObject.LEFT : FlxObject.RIGHT);		
 			hurt(5);
 		}
 		bullet.destroy();
+	}
+
+	public function hit(me:Megaman, ennemy:FlxSprite):Void {
+		if (!hurtInvicibility) {
+			push(ennemy.x < x ? FlxObject.LEFT : FlxObject.RIGHT);		
+			hurt(2);
+		}
 	}
 
 	public override function hurt(Damage:Float) {
