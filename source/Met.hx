@@ -19,13 +19,9 @@ class Met extends FlxSprite
 
 	private var isHidden:Bool;
 	private var isFiring:Bool;
+	
+	private var fireTimer:FlxTimer;
 
-	/**
-
-	private var hidingRequired:Bool;
-	private var willFire:Bool;
-	private var isInvicible:Bool;
-	**/
 	public function new(x:Float, y:Float) 
 	{
 		super(x, y);
@@ -58,7 +54,7 @@ class Met extends FlxSprite
 			// We need to hide
 			isHidden = true;
 			animation.play("hide");
-		} else if(distance <= 200){
+		} else if(distance <= 150){
 			isHidden = false;
 			if (!isFiring) {
 				FlxTimer.start(1, fire, 0);
@@ -73,7 +69,7 @@ class Met extends FlxSprite
 			height = 11;
 			offset.y = 8;
 			y += 8;
-		} else if(height == 1){
+		} else if(!isHidden && height == 11){
 			this.height = 19;
 			this.offset.y = 0;
 			y -= 8;
@@ -89,7 +85,16 @@ class Met extends FlxSprite
 		}
 	}
 
+	public override function kill() {
+		super.kill();
+		if (fireTimer != null) {			
+			fireTimer.abort();
+			fireTimer.destroy();
+		}
+	}
+	
 	public function fire(timer:FlxTimer):Void {
+		fireTimer = timer;
 		if (FlxMath.distanceBetween(this, currentState.player) > 200 || FlxMath.distanceBetween(this, currentState.player) < 50) {			
 			timer.abort();
 			isFiring = false;
